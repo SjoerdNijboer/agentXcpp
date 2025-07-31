@@ -28,6 +28,7 @@
 #include "NotifyPDU.hpp"
 #include "util.hpp"
 #include "OidVariable.hpp"
+#include "exceptions.hpp"
 
 
 using namespace std;
@@ -69,7 +70,7 @@ MasterProxy::MasterProxy(std::string _description,
 	// throws disconnected:
 	this->connect();
     }
-    catch(disconnected)
+    catch(const disconnected&)
     {
 	// Ignore, stay disconnected
     }
@@ -112,11 +113,11 @@ void MasterProxy::connect()
 //	// throws disconnected and timeout_error:
 //	response = this->connection->wait_for_response(openpdu.get_packetID());
     }
-    catch(disconnected)
+    catch(const disconnected&)
     {
 	throw; // forward
     }
-    catch(timeout_error)
+    catch(const timeout_error&)
     {
 	throw disconnected();
     }
@@ -290,7 +291,7 @@ void MasterProxy::register_subtree(Oid subtree,
     {
 	this->do_registration(pdu);
     }
-    catch( internal_error )
+    catch(const internal_error &)
     {
 	// Huh, it seems that we sent a malformed PDU to the master. We convert 
 	// this to parse_error.
@@ -345,7 +346,7 @@ void MasterProxy::unregister_subtree(Oid subtree,
     {
 	this->undo_registration(pdu);
     }
-    catch( internal_error )
+    catch(const internal_error&)
     {
 	// Huh, it seems that we sent a malformed PDU to the master. We convert 
 	// this to parse_error.
@@ -782,8 +783,8 @@ void MasterProxy::handle_pdu(QSharedPointer<PDU> pdu)
 	    connection->send(response);
 	    //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(QSharedPointer<PDU>, response));
 	}
-	catch(timeout_error) { /* connection loss. Ignore.*/ }
-	catch(disconnected) { /* connection loss. Ignore.*/ }
+	catch(const timeout_error&) { /* connection loss. Ignore.*/ }
+	catch(const disconnected&) { /* connection loss. Ignore.*/ }
 
 	return;
     }
@@ -851,8 +852,8 @@ void MasterProxy::handle_pdu(QSharedPointer<PDU> pdu)
         //QMetaObject::invokeMethod(connection, "do_send", Q_ARG(QSharedPointer<PDU>, response));
         //this->connection->send(response);
     }
-    catch(timeout_error) { /* connection loss. Ignore.*/ }
-    catch(disconnected) { /* connection loss. Ignore.*/ }
+    catch(const timeout_error&) { /* connection loss. Ignore.*/ }
+    catch(const disconnected&) { /* connection loss. Ignore.*/ }
 }
 
 void MasterProxy::addVariables(QVector< QPair<

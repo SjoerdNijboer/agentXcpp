@@ -232,11 +232,11 @@ void UnixDomainConnector::do_receive()
         {
             pdu = PDU::parse_pdu(*i);
         }
-        catch(version_error)
+        catch(const version_error&)
         {
             return;
         }
-        catch(parse_error)
+        catch(const parse_error&)
         {
             return;
         }
